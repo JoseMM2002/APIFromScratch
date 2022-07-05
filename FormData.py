@@ -5,7 +5,7 @@ class HTTPRequest:
         self.path = aux[0].split(' ')[1]
         print('[%s to %s]'%(self.method,self.path))
         self.body = aux[1:]
-        print(body)
+        print(self.body)
 
 def processFormData(request:str):
     request = HTTPRequest(request)

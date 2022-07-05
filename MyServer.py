@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 import sys
 from FormData import processFormData
+import bcrypt
 
 def handdleClient(conn,addr):
     print('[%s:%i]'%(addr[0],addr[1]))
@@ -48,9 +49,13 @@ def runServer():
     return
 
 def createServer(port:int = 8000,name:str = 'localhost'):
+    key = bcrypt.hashpw(b'password',bcrypt.gensalt())
+    print(key.decode('utf-8'))
     data = {
         'Port': port,
-        'Name': name
+        'Name': name,
+        'CSRF_Key': key.decode('utf-8'),
+        'Allowed_CORS': '127.0.0.1'
     }
     with open('settings/Server.json', 'w') as file:
         json.dump(data, file, indent=2)
