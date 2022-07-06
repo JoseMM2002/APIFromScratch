@@ -12,7 +12,11 @@ def handdleClient(conn,addr):
     Connected = True
     while Connected:
         message = conn.recv(1024)
-        processFormData(message.decode('utf-8'))
+        try:
+            response = 'HTTP/1.0 200 OK\n\n' + processFormData(message.decode('utf-8'))
+            conn.send(response.encode())
+        except:
+            print('Not value response')
         Connected = False
     return
 
@@ -32,10 +36,11 @@ def runServer():
     print(today.strftime('%b/%d/%Y - %H:%M:%S'))
     print('Port: ' + str(data['Port']))
     print('Name: ' + data['Name'])
-    print('Press ctrl + c to close server')
+    print('Acces: http://%s:%s/ '%(data['Name'],str(data['Port'])))
     server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     try:
         server.bind((data['Name'],data['Port']))
+        print('Press ctrl + c to close server')
         print('Server on listening...')
     except:
         print('Port already in use')
@@ -45,6 +50,7 @@ def runServer():
     except KeyboardInterrupt:
         print()
         print('Closing server...')
+        server.shutdown(1)
         server.close()
         sys.exit()
     return
