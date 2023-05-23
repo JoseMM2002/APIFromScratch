@@ -1,32 +1,38 @@
-import socket
-import threading
 import json
 from datetime import datetime
 import sys
-from FormData import processFormData
 import bcrypt
 import os
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from Paths import paths_POST, paths_GET
 
-def handdleClient(conn,addr):
-    print('[%s:%i]'%(addr[0],addr[1]))
-    Connected = True
-    while Connected:
-        message = conn.recv(1024)
-        try:
-            response = 'HTTP/1.0 200 OK\n\n' + processFormData(message.decode('utf-8'))
-            conn.send(response.encode())
-        except:
-            print('Not value response')
-        Connected = False
-    return
 
-def start(server):
-    server.listen()
-    while True:
-        conn,addr = server.accept()
-        thread = threading.Thread(target=handdleClient,args=(conn,addr))
-        thread.start()
-        print('[Active connections] %i'%(threading.activeCount() - 1))
+class RequestHandler(BaseHTTPRequestHandler):
+    @paths_POST
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        self.methodPOST(post_data, self.headers)
+        response_message = '¡Solicitud POST recibida correctamente!\n'
+        response_data = post_data.decode('utf-8')
+        response = response_message.encode('utf-8')
+
+        self.send_response(200)
+        self.send_header('Content-type', 'text/plain')
+        self.send_header('Content-length', len(response))
+        self.end_headers()
+        self.wfile.write(response)
+    
+    @paths_GET
+    def do_GET(self):
+        response_message = '¡Solicitud GET recibida correctamente!\n'
+        response = response_message.encode('utf-8')
+
+        self.send_response(200)
+        self.send_header('Content-type', 'text/plain')
+        self.send_header('Content-length', len(response))
+        self.end_headers()
+        self.wfile.write(response)
 
 def runServer():
     print('Reading data settings')
@@ -37,16 +43,16 @@ def runServer():
     print('Port: ' + str(data['Port']))
     print('Name: ' + data['Name'])
     print('Acces: http://%s:%s/ '%(data['Name'],str(data['Port'])))
-    server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    host = data['Name']
+    port = data['Port']
     try:
-        server.bind((data['Name'],data['Port']))
-        print('Press ctrl + c to close server')
-        print('Server on listening...')
+        server = HTTPServer((host, port), RequestHandler)
+        print(f'Server running on {host}:{port}')
     except:
         print('Port already in use')
         sys.exit()
     try:
-        start(server)
+        server.serve_forever()
     except KeyboardInterrupt:
         print()
         print('Closing server...')
