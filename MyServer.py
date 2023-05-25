@@ -5,6 +5,7 @@ import bcrypt
 import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from Paths import paths_POST, paths_GET
+from Route import setRoutes
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -12,7 +13,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
-        self.methodPOST(post_data, self.headers)
+        self.methodPOST(post_data, self.headers, self.db)
         response_message = '¡Solicitud POST recibida correctamente!\n'
         response_data = post_data.decode('utf-8')
         response = response_message.encode('utf-8')
@@ -43,6 +44,7 @@ def runServer():
     print('Port: ' + str(data['Port']))
     print('Name: ' + data['Name'])
     print('Acces: http://%s:%s/ '%(data['Name'],str(data['Port'])))
+    setRoutes()
     host = data['Name']
     port = data['Port']
     try:

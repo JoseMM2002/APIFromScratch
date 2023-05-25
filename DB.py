@@ -18,8 +18,19 @@ def checkDataBase(data, table):
     """ + where
     cursor.execute(toExecute)
     users = cursor.fetchall()
-    
     conn.close()
+    return users
+
+def updateDataBaseById(data, table, id):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    toExecute = f"""
+        UPDATE {table}
+        SET
+    """
+    for e in data.keys():
+        i+=1
+    
 
 def createDataBase(data, table):
     conn = sqlite3.connect('databes.db')

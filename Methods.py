@@ -12,17 +12,24 @@ def process_form_data(post_data, headers):
     return form
 
 
-def registerMethod(data, headers):
+def registerMethodPOST(data, headers, db):
+    response = ""
     data_processed = process_form_data(data, headers)
-    checkDataBase(data_processed, "users")
+    users = checkDataBase(data_processed, db)
+    if len(users) > 0:
+        response = "User already exists"
+    else:
+        response = "User registered succesfully"
     return
 
-def loginMethod(request):
-    content_length = int(request.headers['Content-Length'])
-    post_data = request.rfile.read(content_length)
-    print(post_data)
+def loginMethodPOST(data, headers, db):
+    data_processed = process_form_data(data, headers)
+    checkDataBase(data_processed, db)
 
-methods_POST = [
-    registerMethod,
-    loginMethod,
-]
+def materiasMethodGET(data, headers, db):
+    data_processed = process_form_data(data, headers)
+    checkDataBase(data_processed, db)
+
+def maestrosMethodGET(data, headers, db):
+    data_processed = process_form_data(data, headers)
+    checkDataBase(data_processed, db)
